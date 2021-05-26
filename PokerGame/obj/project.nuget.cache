@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "hauvaUXg4BswiHA5MhaqAAZZOsMosA1c/CML0VRJKozOd2Spw0khj1hEiu7Xra/OA90wulxsjrXPx55AEHbtgA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\hites\\source\\repos\\PokerGame\\PokerGame\\PokerGame.fsproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\hites\\.nuget\\packages\\fsharp.core\\5.0.0\\fsharp.core.5.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
