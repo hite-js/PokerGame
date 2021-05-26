@@ -44,5 +44,6 @@ let main argv =
     //game set
     let pokerGame:PokerGame = {GameState = CheckRound; pot = (ante * 4us); playerList = newPlayerList;prevBet = 0us}
     
+    let newBranch = 1
 
     0
