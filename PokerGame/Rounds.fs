@@ -2,15 +2,16 @@
 open Player
 open Type
 open System
+open Deck
 
-let rec getBetAmount () =
+let rec getAmount () =
     let (parsed,input) = Console.ReadLine () |> UInt16.TryParse
     if parsed
     then
         input
     else
         printfn "ERROR: The input was not a valid integer"
-        getBetAmount ()
+        getAmount ()
 
 let rec getPlayerChoice (error:string) (pokerGame:PokerGame) =
     printf "%s" error
@@ -74,13 +75,13 @@ let rec bettingRound (playerList:Player List) (pokerGame:PokerGame) =
         match pokerGame.GameState with
         |CheckRound ->
             match choice with
-            |1us -> printf "Player %i has checked. Next player turn" head.id // CHECK IS OPTIONAL AND IT WILL ONLY PRINT IF THE USER CAN DO IT
+            |1us -> printf "Player %i has checked\n" head.id // CHECK IS OPTIONAL AND IT WILL ONLY PRINT IF THE USER CAN DO IT
                     bettingRound tail pokerGame
             |2us -> let newPokerGame = playerFold head pokerGame                        //FOLD -> Removes players from list
                     bettingRound tail newPokerGame
             |3us -> printf "Please specify bet amount or type 0 to go back:\n"
                     printf "> "
-                    let amount = getBetAmount ()
+                    let amount = getAmount ()
                     match amount with
                     |amount when amount > 0us ->
                         match amount with
@@ -106,7 +107,7 @@ let rec bettingRound (playerList:Player List) (pokerGame:PokerGame) =
                          bettingRound tail newPokerGame
             |2us -> printf "Please specify the raise amount or type 0 to go back:\n"        //RAISE
                     printf "> "
-                    let amount = getBetAmount ()
+                    let amount = getAmount ()
                     match amount with
                     |amount when amount > 0us ->
                         match amount with
@@ -129,3 +130,48 @@ let rec bettingRound (playerList:Player List) (pokerGame:PokerGame) =
                   bettingRound tail pokerGame
         
 
+let rec swapCard (handList:Card List) (amount:uint16) =
+    match amount with
+    |0us -> handList
+    |_-> printf "Select the card you want to swap: "
+         let cardIndex = getAmount ()
+         match cardIndex with 
+         |cardIndex when cardIndex > 0us && cardIndex < (uint16 handList.Length + 1us) ->
+            let card = handList.[int cardIndex - 1]
+            let newHand = removeCardFromHand card handList
+            printHand newHand 1us
+            swapCard newHand (amount - 1us)
+         |_-> printf "[ERROR]Invalid card"
+              swapCard handList amount
+
+
+
+//        --swapping round--
+let rec swappingRound (playerList:Player List) (pokerGame:PokerGame) (deck:Card[]) =
+    let sortedPlayerList = List.sortBy (fun (x : Player) -> x.id) playerList
+    match sortedPlayerList with
+    |[] -> pokerGame
+    |head::tail ->
+        printf "\n--------------------\n"
+        printf "|   PLAYER %i TURN  |\n" head.id
+        printf "--------------------\n"
+        let player = head
+        let hand = handToList player.Hand
+        printHand hand 1us
+        printf "\nHow many cards do you want to swap? "
+        printf "\n> "
+        let cardSwapAmount = getAmount ()
+        match cardSwapAmount with
+        |cardSwapAmount when cardSwapAmount >= 0us && cardSwapAmount < 4us ->
+            let oldCards = swapCard hand cardSwapAmount
+            printf "%A" oldCards
+            let newCards = Array.toList (drawCardFromDeck cardSwapAmount deck)
+            let newHand = merge oldCards newCards
+            let newPlayerHand:Hand = newHand.[0],newHand.[1],newHand.[2],newHand.[3],newHand.[4]
+            let newPlayer = {player with Hand = newPlayerHand}
+            let newPlayerList = newPlayer :: removePlayerFromList player pokerGame.playerList
+            let newPokerGame = {pokerGame with playerList = newPlayerList}
+            swappingRound tail newPokerGame deck
+        |_-> printf "[ERROR]Invalid amount(Min:0, Max:3)"
+             let newList = head::tail
+             swappingRound newList pokerGame deck

@@ -65,14 +65,19 @@ let rec setPlayers (error:string) (playerList: Player List) (deck:Card[]) =
 let getPlayerDetail (player:Player) =
     printf "\n------Player[%i]------" player.id
     printf "\n[Money] - %i" player.Money
-    printf "\n[Hand]" 
+    printf "\n[Hand]\n" 
     let playerHand = player.Hand
     match playerHand with 
     |(c1,c2,c3,c4,c5) ->
+        printf "-"
         printCard c1
+        printf "\n-"
         printCard c2
+        printf "\n-"
         printCard c3
+        printf "\n-"
         printCard c4
+        printf "\n-"
         printCard c5
         
 let printPlayerDetails (playerList: Player List) =
@@ -107,3 +112,10 @@ let rec setAnte (error:string) =
         |input when input = 4us -> 50us
         |_->
             setAnte "[ERROR]Invalid ante. Please select from the list"
+
+ 
+let rec removeCardFromHand (card:Card) (cardList: Card List) = 
+    match cardList with
+    | h::tl when h = card -> tl
+    | h::tl -> h :: (removeCardFromHand card tl)
+    | [] -> []
