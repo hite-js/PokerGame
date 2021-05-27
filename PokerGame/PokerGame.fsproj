@@ -9,6 +9,7 @@
     <Compile Include="Type.fs" />
     <Compile Include="Deck.fs" />
     <Compile Include="Player.fs" />
+    <Compile Include="Rounds.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 

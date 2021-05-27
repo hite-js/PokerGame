@@ -53,3 +53,9 @@ let printCard (card:Card) =
         printf "\n-%A %s " rank "♠"
     |Diamond ->
         printf "\n-%A %s " rank "♦" 
+
+let reverseList list =
+    match list with
+    | [] -> []
+    | _ -> list |> List.rev
+

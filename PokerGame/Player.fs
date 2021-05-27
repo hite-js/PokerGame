@@ -26,6 +26,12 @@ let rec removePlayerByIndex (index:int) (playerList: Player List) =
     | index, x::xs -> x::removePlayerByIndex (index - 1) xs
     | index, [] -> failwith "Index out of range"
 
+let rec removePlayerFromList (player:Player) (playerList: Player List) = 
+    match playerList with
+    | h::tl when h = player -> tl
+    | h::tl -> h :: (removePlayerFromList player tl)
+    | [] -> []
+
 let rec takeAnte (playerList: Player List) (ante:uint16) (id:int) =
     match id with
     |id when id < playerList.Length ->
@@ -51,7 +57,8 @@ let rec setPlayers (error:string) (playerList: Player List) (deck:Card[]) =
         match input with
         |input when input > 1us && input < 6us ->
             let (playerList,deck) = createPlayer 1000us deck input playerList
-            (playerList,deck)
+            let reversedList = reverseList playerList
+            (reversedList,deck)
         |_->
             setPlayers "[ERROR]Invalid number of players (Min:2, Max:5)" playerList deck
 
@@ -67,7 +74,7 @@ let getPlayerDetail (player:Player) =
         printCard c3
         printCard c4
         printCard c5
-
+        
 let printPlayerDetails (playerList: Player List) =
     playerList |> List.iter (fun player ->
         match player with 
@@ -99,4 +106,4 @@ let rec setAnte (error:string) =
         |input when input = 3us -> 30us
         |input when input = 4us -> 50us
         |_->
-            setAnte "[ERROR]Ivalid ante. Please select from the list"
+            setAnte "[ERROR]Invalid ante. Please select from the list"

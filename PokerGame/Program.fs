@@ -1,6 +1,7 @@
 ﻿open Type
 open Deck
 open Player
+open Rounds
 
 open System
 let rec getInt () =
@@ -19,7 +20,7 @@ let main argv =
     Console.WriteLine("-------------------POKER GAME-------------------")
     Console.WriteLine("|                                              |")
     Console.WriteLine("|                                              |")
-    Console.WriteLine("|         by Aminul,Ibrahim,Hitesh,Arjun       |")
+    Console.WriteLine("|                  by Hitesh                   |")
     Console.WriteLine("|                                              |")
     Console.WriteLine("|                                              |")
     Console.WriteLine("-------------------POKER GAME-------------------")
@@ -41,8 +42,14 @@ let main argv =
     let ante = setAnte "\nPlease specify the ante: "
     let newPlayerList = takeAnte playerList ante 0
     printPlayerDetails newPlayerList
+    printf "\n\n\n\n\n"
     //game set
-    let pokerGame:PokerGame = {GameState = CheckRound; pot = (ante * 4us); playerList = newPlayerList;prevBet = 0us}
+    let pokerGame:PokerGame = {GameState = CheckRound; pot = (ante * uint16 newPlayerList.Length); playerList = newPlayerList;prevBet = 0us}
     
-
+    let firstRound = bettingRound pokerGame.playerList pokerGame
+    //let swappingRound = swappingRound
+    printf "\nFirstRound Stats:\n"
+    printf "\n%i" firstRound.pot
+    printf "\n%i" firstRound.prevBet
+    printf "\n%A" firstRound.playerList
     0
