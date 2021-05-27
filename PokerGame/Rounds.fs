@@ -43,11 +43,11 @@ let rec getPlayerChoice (error:string) (pokerGame:PokerGame) =
             |_-> getPlayerChoice "[ERROR]Invalid choice please select from the following" pokerGame
     |_-> getPlayerChoice "[ERROR]Invalid choice please select from the following" pokerGame
 
-let rec firstBet (error:string) (player:Player) (pokerGame:PokerGame) (amount:uint16) =
+let rec playerBet (error:string) (player:Player) (pokerGame:PokerGame) (amount:uint16) =
     printf "%s" error
     let pMoney = player.Money
     match pMoney with
-      |pMoney when pMoney < amount -> firstBet "[ERROR]You don't have enough money!" player pokerGame amount
+      |pMoney when pMoney < amount -> playerBet "[ERROR]You don't have enough money!" player pokerGame amount
       |_->
          let newPlayerList = reducePlayerMoneyByAmount(player,pokerGame.playerList,amount)
          let newPot = pokerGame.pot + amount
@@ -59,6 +59,7 @@ let playerFold (player:Player) (pokerGame:PokerGame) =
     let newPokerGame = {pokerGame with playerList = newPlayerList}
     newPokerGame
 
+
 let rec bettingRound (playerList:Player List) (pokerGame:PokerGame) =
     match playerList with
     | [] -> pokerGame
@@ -67,6 +68,8 @@ let rec bettingRound (playerList:Player List) (pokerGame:PokerGame) =
         printf "|   PLAYER %i TURN  |\n" head.id
         printf "--------------------\n"
         getPlayerDetail head
+        printf "\n\nPrevious Bet: %i\n" pokerGame.prevBet
+        printf "Total pot money: %i\n" pokerGame.pot
         let choice = getPlayerChoice "\nPlease select from the following option:\n" pokerGame
         match pokerGame.GameState with
         |CheckRound ->
@@ -82,7 +85,7 @@ let rec bettingRound (playerList:Player List) (pokerGame:PokerGame) =
                     |amount when amount > 0us ->
                         match amount with
                         |amount when amount <= head.Money ->
-                            let betPokerGame = firstBet "" head pokerGame amount          //BET -> First Bet
+                            let betPokerGame = playerBet "" head pokerGame amount          //BET -> First Bet
                             bettingRound tail betPokerGame
                         |_-> printf "\n[ERROR]You don't have enough money!"
                              let newList = head::tail
@@ -93,11 +96,34 @@ let rec bettingRound (playerList:Player List) (pokerGame:PokerGame) =
                   bettingRound tail pokerGame
         |_->
             match choice with
-            |1us -> printf "Call"
-                    bettingRound tail pokerGame
-            |2us -> printf "Raise"
-                    bettingRound tail pokerGame
-            |3us -> let newPokerGame = playerFold head pokerGame
+            |1us -> let pMoney = head.Money            //CALL
+                    match pMoney with
+                    |pMoney when pMoney < pokerGame.prevBet ->
+                        printf "\n[ERROR]You don't have enough money to call!"
+                        let newList = head::tail
+                        bettingRound newList pokerGame
+                    |_-> let newPokerGame = playerBet "" head pokerGame pokerGame.prevBet
+                         bettingRound tail newPokerGame
+            |2us -> printf "Please specify the raise amount or type 0 to go back:\n"        //RAISE
+                    printf "> "
+                    let amount = getBetAmount ()
+                    match amount with
+                    |amount when amount > 0us ->
+                        match amount with
+                        |amount when amount <= head.Money ->
+                            match amount with
+                            |amount when amount > pokerGame.prevBet ->
+                                let betPokerGame = playerBet "" head pokerGame amount
+                                bettingRound tail betPokerGame
+                            |_-> printf "\n[ERROR]The raise needs to be higher than the previous bet!"
+                                 let newList = head::tail
+                                 bettingRound newList pokerGame
+                        |_-> printf "\n[ERROR]You don't have enough money!"
+                             let newList = head::tail
+                             bettingRound newList pokerGame
+                    |_-> let newList = head::tail 
+                         bettingRound newList pokerGame
+            |3us -> let newPokerGame = playerFold head pokerGame            //FOLD
                     bettingRound tail newPokerGame
             |_ -> printf "[ERROR]Invalid choice"
                   bettingRound tail pokerGame

@@ -47,6 +47,7 @@ let main argv =
     let pokerGame:PokerGame = {GameState = CheckRound; pot = (ante * uint16 newPlayerList.Length); playerList = newPlayerList;prevBet = 0us}
     
     let firstRound = bettingRound pokerGame.playerList pokerGame
+    //let swappingRound = swappingRound
     printf "\nFirstRound Stats:\n"
     printf "\n%i" firstRound.pot
     printf "\n%i" firstRound.prevBet
