@@ -52,7 +52,11 @@ let main argv =
     printf "\n%i" firstRound.prevBet
     printf "\n%A" firstRound.playerList
     let swappingRound = swappingRound firstRound.playerList firstRound deck
-
     printf "\nSwapround Stats:\n"
     printf "\n%A" swappingRound.playerList
+    let secondRound = bettingRound swappingRound.playerList swappingRound
+    printf "\nSecondRound Stats:\n"
+    printf "\n%i" secondRound.pot
+    printf "\n%i" secondRound.prevBet
+    printf "\n%A" secondRound.playerList
     0

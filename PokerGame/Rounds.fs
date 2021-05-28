@@ -62,8 +62,9 @@ let playerFold (player:Player) (pokerGame:PokerGame) =
 
 
 let rec bettingRound (playerList:Player List) (pokerGame:PokerGame) =
-    match playerList with
-    | [] -> pokerGame
+    let sortedPlayerList = List.sortBy (fun (x : Player) -> x.id) playerList
+    match sortedPlayerList with
+    | [] -> {pokerGame with GameState = CheckRound; prevBet = 0us}
     | head::tail ->
         printf "\n--------------------\n"
         printf "|   PLAYER %i TURN  |\n" head.id
@@ -133,7 +134,7 @@ let rec bettingRound (playerList:Player List) (pokerGame:PokerGame) =
 let rec swapCard (handList:Card List) (amount:uint16) =
     match amount with
     |0us -> handList
-    |_-> printf "Select the card you want to swap: "
+    |_-> printf "Select the card you want to swap(Please select only one card at a time, Ex: 3)\n> "
          let cardIndex = getAmount ()
          match cardIndex with 
          |cardIndex when cardIndex > 0us && cardIndex < (uint16 handList.Length + 1us) ->
@@ -141,7 +142,7 @@ let rec swapCard (handList:Card List) (amount:uint16) =
             let newHand = removeCardFromHand card handList
             printHand newHand 1us
             swapCard newHand (amount - 1us)
-         |_-> printf "[ERROR]Invalid card"
+         |_-> printf "[ERROR]Invalid card\n"
               swapCard handList amount
 
 
@@ -171,6 +172,10 @@ let rec swappingRound (playerList:Player List) (pokerGame:PokerGame) (deck:Card[
             let newPlayer = {player with Hand = newPlayerHand}
             let newPlayerList = newPlayer :: removePlayerFromList player pokerGame.playerList
             let newPokerGame = {pokerGame with playerList = newPlayerList}
+            getPlayerDetail newPlayer
+            printf "\n^^-Your new hand-^^"
+            printf "\nPress ENTER to continue"
+            let nextInput = Console.ReadLine ()
             swappingRound tail newPokerGame deck
         |_-> printf "[ERROR]Invalid amount(Min:0, Max:3)"
              let newList = head::tail
