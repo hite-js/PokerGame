@@ -174,9 +174,45 @@ let rec swappingRound (playerList:Player List) (pokerGame:PokerGame) (deck:Card[
             let newPokerGame = {pokerGame with playerList = newPlayerList}
             getPlayerDetail newPlayer
             printf "\n^^-Your new hand-^^"
+            let sortedHand = sortedHandByValue newPlayer.Hand
+            printf "\n%A" sortedHand
             printf "\nPress ENTER to continue"
             let nextInput = Console.ReadLine ()
-            swappingRound tail newPokerGame deck
+            swappingRound tail newPokerGame (List.toArray newCards)
         |_-> printf "[ERROR]Invalid amount(Min:0, Max:3)"
              let newList = head::tail
              swappingRound newList pokerGame deck
+
+
+let rec showdownRound (playerList:Player List) =
+    match playerList with
+    |[] -> playerList
+    |head::tail -> let numOfPlayer = playerList.Length
+                   let playerHand = head.Hand
+                   let handRank = scoreHand playerHand
+                   printf "\n%i\nPlayer %i hand rank:%A" playerList.Length head.id handRank
+                   match numOfPlayer with
+                   |numOfPlayer when numOfPlayer > 1 -> 
+                       let secondPlayer = tail.[0]
+                       let secondPlayerHand = secondPlayer.Hand
+                       let secondHandRank = scoreHand secondPlayerHand
+                       printf "\nPlayer %i hand rank:%A" secondPlayer.id secondHandRank
+                       if secondHandRank > handRank then
+                            let newPlayerList = removePlayerFromList head playerList
+                            showdownRound newPlayerList
+                       else
+                            if secondHandRank = handRank then
+                                let winner = getWinner head secondPlayer
+                                if winner = Some head then
+                                    let newPlayerList = removePlayerFromList secondPlayer playerList
+                                    showdownRound newPlayerList
+                                else
+                                    if winner = Some secondPlayer then
+                                        let newPlayerList = removePlayerFromList head playerList
+                                        showdownRound newPlayerList
+                                    else
+                                        showdownRound playerList
+                            else
+                                let newPlayerList = removePlayerFromList tail.[0] playerList
+                                showdownRound newPlayerList
+                   |_-> playerList

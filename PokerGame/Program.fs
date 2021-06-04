@@ -59,4 +59,6 @@ let main argv =
     printf "\n%i" secondRound.pot
     printf "\n%i" secondRound.prevBet
     printf "\n%A" secondRound.playerList
+    let lastRound = showdownRound secondRound.playerList
+    printf "%A" lastRound
     0
