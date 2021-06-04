@@ -184,13 +184,13 @@ let rec swappingRound (playerList:Player List) (pokerGame:PokerGame) (deck:Card[
              swappingRound newList pokerGame deck
 
 
-let rec showdownRound (playerList:Player List) =
+let rec showdownRound (pokerGame:PokerGame) (playerList: Player List) =
     match playerList with
-    |[] -> playerList
+    |[] -> pokerGame
     |head::tail -> let numOfPlayer = playerList.Length
                    let playerHand = head.Hand
                    let handRank = scoreHand playerHand
-                   printf "\n%i\nPlayer %i hand rank:%A" playerList.Length head.id handRank
+                   printf "\nPlayer %i hand rank:%A" head.id handRank
                    match numOfPlayer with
                    |numOfPlayer when numOfPlayer > 1 -> 
                        let secondPlayer = tail.[0]
@@ -199,20 +199,21 @@ let rec showdownRound (playerList:Player List) =
                        printf "\nPlayer %i hand rank:%A" secondPlayer.id secondHandRank
                        if secondHandRank > handRank then
                             let newPlayerList = removePlayerFromList head playerList
-                            showdownRound newPlayerList
+                            let newPokerGame = {pokerGame with playerList = newPlayerList}
+                            showdownRound newPokerGame newPokerGame.playerList
                        else
                             if secondHandRank = handRank then
                                 let winner = getWinner head secondPlayer
-                                if winner = Some head then
-                                    let newPlayerList = removePlayerFromList secondPlayer playerList
-                                    showdownRound newPlayerList
-                                else
-                                    if winner = Some secondPlayer then
-                                        let newPlayerList = removePlayerFromList head playerList
-                                        showdownRound newPlayerList
-                                    else
-                                        showdownRound playerList
+                                match winner with
+                                |Some p when Some p = Some head -> let newPlayerList = removePlayerFromList secondPlayer pokerGame.playerList
+                                                                   let newPokerGame = {pokerGame with playerList = newPlayerList}
+                                                                   showdownRound newPokerGame newPokerGame.playerList
+                                |Some p when Some p = Some secondPlayer -> let newPlayerList = removePlayerFromList secondPlayer pokerGame.playerList
+                                                                           let newPokerGame = {pokerGame with playerList = newPlayerList}
+                                                                           showdownRound newPokerGame newPokerGame.playerList
+                                |_-> showdownRound pokerGame pokerGame.playerList
                             else
-                                let newPlayerList = removePlayerFromList tail.[0] playerList
-                                showdownRound newPlayerList
-                   |_-> playerList
+                                let newPlayerList = removePlayerFromList tail.[0] pokerGame.playerList
+                                let newPokerGame = {pokerGame with playerList = newPlayerList}
+                                showdownRound newPokerGame newPokerGame.playerList
+                   |_-> pokerGame

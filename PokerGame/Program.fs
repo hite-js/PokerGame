@@ -41,24 +41,18 @@ let main argv =
     //ante set
     let ante = setAnte "\nPlease specify the ante: "
     let newPlayerList = takeAnte playerList ante 0
-    printPlayerDetails newPlayerList
-    printf "\n\n\n\n\n"
     //game set
     let pokerGame:PokerGame = {GameState = CheckRound; pot = (ante * uint16 newPlayerList.Length); playerList = newPlayerList;prevBet = 0us}
     
     let firstRound = bettingRound pokerGame.playerList pokerGame
-    printf "\nFirstRound Stats:\n"
-    printf "\n%i" firstRound.pot
-    printf "\n%i" firstRound.prevBet
-    printf "\n%A" firstRound.playerList
     let swappingRound = swappingRound firstRound.playerList firstRound deck
-    printf "\nSwapround Stats:\n"
-    printf "\n%A" swappingRound.playerList
     let secondRound = bettingRound swappingRound.playerList swappingRound
-    printf "\nSecondRound Stats:\n"
-    printf "\n%i" secondRound.pot
-    printf "\n%i" secondRound.prevBet
-    printf "\n%A" secondRound.playerList
-    let lastRound = showdownRound secondRound.playerList
-    printf "%A" lastRound
+    let lastRound = showdownRound secondRound secondRound.playerList
+    if lastRound.playerList.Length > 1 then
+        printf "There has been a TIE. No one won"
+    else
+        let winner = lastRound.playerList.Head
+        printf "\n\n[--WINNER--]The winner is player number: %i[--WINNER--]" winner.id
+        getPlayerDetail winner
+    
     0
